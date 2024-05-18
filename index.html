@@ -3,57 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Colored Cipher Visualization</title>
+<title>Colored Eyes Visualization</title>
 <style>
-  /* Define grid layout */
-  #cipherGrid {
+  #eyesGrid {
     display: grid;
-    gap: 2px; /* Adjust gap between grid squares as needed */
-    overflow-x: auto; /* Enable horizontal scrollbar */
-    white-space: nowrap; /* Prevent grid from wrapping */
+    gap: 2px;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
-  /* Define grid square styles */
   .gridSquare {
-    width: 20px; /* Adjust square size as needed */
-    height: 20px; /* Adjust square size as needed */
-    border: 1px solid black; /* Adjust border style as needed */
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    font-size: 12px; /* Adjust font size as needed */
+    font-size: 12px;
   }
 
-  /* Define chart container styles */
   #chartWrapper {
-    overflow-x: auto; /* Enable horizontal scrollbar */
-    white-space: nowrap; /* Prevent chart from wrapping */
-    width: 100%; /* Make chart responsive */
-    min-width: 600px; /* Set a minimum width to maintain size */
-    position: relative; /* Position relative for absolute positioning */
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    min-width: 600px;
+    position: relative;
   }
 
   #chartContainer {
     display: flex;
-    justify-content: flex-start; /* Align bars to the left */
-    align-items: flex-end; /* Align bars to the bottom */
-    padding: 10px 0; /* Add padding for better spacing */
-    position: absolute; /* Position absolute for top-left origin */
-    top: 0; /* Align to top */
-    left: 0; /* Align to left */
+    justify-content: flex-start;
+    align-items: flex-end;
+    padding: 10px 0;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 
-  /* Define bar chart styles */
   .barContainer {
     display: flex;
-    flex-direction: column; /* Reverse column direction for top-left origin */
+    flex-direction: column;
     align-items: center;
-    margin-right: 5px; /* Adjust margin between bars as needed */
-    width: 20px; /* Adjust width to match grid square */
+    margin-right: 5px;
+    width: 20px;
   }
 
   .bar {
-    width: 100%; /* Bar takes full width of container */
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: flex-end;
@@ -69,14 +65,13 @@
 </style>
 </head>
 <body>
-<div id="cipherGrid"></div>
+<div id="eyesGrid"></div>
 <div id="chartWrapper">
   <div id="chartContainer"></div>
 </div>
 
 <script>
-  // JavaScript code to generate the colored cipher grid
-  const ciphers = [
+  const eyes = [
     [50,66,5,48,62,13,75,29,24,61,42,70,66,62,32,14,81,8,15,78,2,29,13,49,1,80,82,40,63,81,21,19,0,40,51,65,26,14,21,70,47,44,48,42,19,48,13,47,19,49,72,31,5,24,3,43,59,67,33,49,41,60,21,26,30,5,25,20,71,11,74,56,4,74,19,71,4,51,41,43,80,72,54,63,79,81,15,16,44,31,30,12,33,57,28,13,64,43,48],
     [80,66,5,48,62,13,75,29,24,61,42,70,66,62,32,14,81,8,15,78,2,29,13,49,1,29,11,30,52,81,21,19,0,25,26,54,20,14,21,70,47,44,48,42,19,48,13,47,19,49,44,26,59,77,64,43,79,28,72,64,1,30,73,23,67,6,33,25,64,81,68,46,17,36,13,17,21,68,13,9,46,67,57,34,62,82,15,10,73,62,2,11,65,72,37,44,10,43,68,62,9,34,18],
     [36,66,5,48,62,13,75,29,24,61,42,70,66,62,32,14,81,8,15,78,2,29,13,49,1,69,76,52,9,48,66,80,22,64,57,40,49,78,3,16,56,19,47,40,80,6,13,64,29,49,64,63,6,49,31,13,16,10,45,24,26,77,10,60,81,61,34,54,70,21,15,4,66,77,42,37,30,22,0,11,41,72,57,20,23,57,65,41,23,18,72,42,5,3,26,78,8,5,54,45,77,25,64,61,16,44,54,51,20,63,25,11,26,45,53,60,38,34],
@@ -88,15 +83,13 @@
     [33,66,5,49,75,54,2,60,29,40,2,55,9,15,59,18,68,3,36,5,47,33,21,59,44,18,28,76,59,34,60,63,79,27,12,54,5,49,48,54,55,52,62,72,69,10,57,22,58,48,67,53,7,34,32,30,31,19,26,8,34,46,7,30,71,55,34,75,54,9,6,60,5,23,25,45,42,80,25,12,22,76,20,51,62,21,40,9,41,10,44,73,8,33,70,73,6,31,21,72,5,40,61,51,42,66,64,74,61,25,63,42,24,41]
   ];
 
-  const combinedCiphers = ciphers.flat();
+  const combinedEyes = eyes.flat();
   const frequency = {};
 
-  // Calculate frequency of each number
-  combinedCiphers.forEach(num => {
+  combinedEyes.forEach(num => {
     frequency[num] = (frequency[num] || 0) + 1;
   });
 
-  // Create color map using tab20 colormap from matplotlib
   const colors = [
     [31, 119, 180],
     [255, 127, 14],
@@ -127,12 +120,11 @@
     colorMaps[freq] = `rgb(${colors[i % colors.length].join()})`;
   });
 
-  // Generate colored cipher grid
-  const cipherGrid = document.getElementById('cipherGrid');
-  ciphers.forEach((cipher, index) => {
+  const eyesGrid = document.getElementById('eyesGrid');
+  eyes.forEach((eye, index) => {
     const row = document.createElement('div');
-    row.classList.add('cipherRow');
-    cipher.forEach(num => {
+    row.classList.add('eyeRow');
+    eye.forEach(num => {
       const color = colorMaps[frequency[num]];
       const gridSquare = document.createElement('div');
       gridSquare.classList.add('gridSquare');
@@ -140,10 +132,9 @@
       gridSquare.textContent = num;
       row.appendChild(gridSquare);
     });
-    cipherGrid.appendChild(row);
+    eyesGrid.appendChild(row);
   });
 
-  // Generate frequency analysis chart
   const chartContainer = document.getElementById('chartContainer');
   const sortedFrequency = Object.entries(frequency).sort((a, b) => b[1] - a[1]);
   sortedFrequency.forEach(([num, freq]) => {
@@ -152,7 +143,7 @@
 
     const bar = document.createElement('div');
     bar.classList.add('bar');
-    bar.style.height = `${freq * 10}px`; // Adjust bar height multiplier as needed
+    bar.style.height = `${freq * 10}px`;
     bar.style.backgroundColor = colorMaps[freq];
 
     const barText = document.createElement('div');
@@ -162,14 +153,13 @@
 
     barContainer.appendChild(bar);
 
-    const cipherLabel = document.createElement('div');
-    cipherLabel.textContent = num;
-    barContainer.appendChild(cipherLabel);
+    const eyeLabel = document.createElement('div');
+    eyeLabel.textContent = num;
+    barContainer.appendChild(eyeLabel);
 
     chartContainer.appendChild(barContainer);
   });
 
-  // Adjust chart container height dynamically
   const chartWrapper = document.getElementById('chartWrapper');
   const chartContainerHeight = chartContainer.getBoundingClientRect().height;
   chartWrapper.style.height = `${chartContainerHeight}px`;
