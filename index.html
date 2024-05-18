@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colored Eyes Visualization</title>
 <style>
+  #buttons {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .toggleButton {
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: grey;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+
+  .toggleButton.active {
+    background-color: blue;
+  }
+
   #eyesGrid {
     display: grid;
     gap: 2px;
@@ -20,6 +39,7 @@
     justify-content: center;
     align-items: center;
     font-size: 12px;
+    cursor: pointer;
   }
 
   #chartWrapper {
@@ -54,6 +74,7 @@
     justify-content: center;
     align-items: flex-end;
     position: relative;
+    cursor: pointer;
   }
 
   .barText {
@@ -65,6 +86,17 @@
 </style>
 </head>
 <body>
+<div id="buttons">
+  <button class="toggleButton active" data-label="E1">E1</button>
+  <button class="toggleButton active" data-label="W1">W1</button>
+  <button class="toggleButton active" data-label="E2">E2</button>
+  <button class="toggleButton active" data-label="W2">W2</button>
+  <button class="toggleButton active" data-label="E3">E3</button>
+  <button class="toggleButton active" data-label="W3">W3</button>
+  <button class="toggleButton active" data-label="E4">E4</button>
+  <button class="toggleButton active" data-label="W4">W4</button>
+  <button class="toggleButton active" data-label="E5">E5</button>
+</div>
 <div id="eyesGrid"></div>
 <div id="chartWrapper">
   <div id="chartContainer"></div>
@@ -83,13 +115,19 @@
     [33,66,5,49,75,54,2,60,29,40,2,55,9,15,59,18,68,3,36,5,47,33,21,59,44,18,28,76,59,34,60,63,79,27,12,54,5,49,48,54,55,52,62,72,69,10,57,22,58,48,67,53,7,34,32,30,31,19,26,8,34,46,7,30,71,55,34,75,54,9,6,60,5,23,25,45,42,80,25,12,22,76,20,51,62,21,40,9,41,10,44,73,8,33,70,73,6,31,21,72,5,40,61,51,42,66,64,74,61,25,63,42,24,41]
   ];
 
-  const combinedEyes = eyes.flat();
-  const frequency = {};
+  const labels = {
+    50: 'E1',
+    80: 'W1',
+    36: 'E2',
+    76: 'W2',
+    63: 'E3',
+    34: 'W3',
+    27: 'E4',
+    77: 'W4',
+    33: 'E5'
+  };
 
-  combinedEyes.forEach(num => {
-    frequency[num] = (frequency[num] || 0) + 1;
-  });
-
+  let activeLabels = new Set(Object.values(labels));
   const colors = [
     [31, 119, 180],
     [255, 127, 14],
@@ -113,57 +151,112 @@
     [158, 218, 229]
   ];
 
-  const uniqueFrequencies = [...new Set(Object.values(frequency))];
-  const colorMaps = {};
+  function updateVisualization() {
+    const filteredEyes = eyes.filter(eye => activeLabels.has(labels[eye[0]]));
+    const combinedEyes = filteredEyes.flat();
+    const frequency = {};
 
-  uniqueFrequencies.forEach((freq, i) => {
-    colorMaps[freq] = `rgb(${colors[i % colors.length].join()})`;
-  });
-
-  const eyesGrid = document.getElementById('eyesGrid');
-  eyes.forEach((eye, index) => {
-    const row = document.createElement('div');
-    row.classList.add('eyeRow');
-    eye.forEach(num => {
-      const color = colorMaps[frequency[num]];
-      const gridSquare = document.createElement('div');
-      gridSquare.classList.add('gridSquare');
-      gridSquare.style.backgroundColor = color;
-      gridSquare.textContent = num;
-      row.appendChild(gridSquare);
+    combinedEyes.forEach(num => {
+      frequency[num] = (frequency[num] || 0) + 1;
     });
-    eyesGrid.appendChild(row);
+
+    const uniqueFrequencies = [...new Set(Object.values(frequency))];
+    const colorMaps = {};
+
+    uniqueFrequencies.forEach((freq, i) => {
+      colorMaps[freq] = `rgb(${colors[i % colors.length].join()})`;
+    });
+
+    const eyesGrid = document.getElementById('eyesGrid');
+    eyesGrid.innerHTML = '';
+    const gridSquares = [];
+
+    filteredEyes.forEach(eye => {
+      const row = document.createElement('div');
+      row.classList.add('eyeRow');
+      eye.forEach(num => {
+        const color = colorMaps[frequency[num]];
+        const gridSquare = document.createElement('div');
+        gridSquare.classList.add('gridSquare');
+        gridSquare.style.backgroundColor = color;
+        gridSquare.textContent = num;
+        gridSquare.dataset.frequency = frequency[num];
+        gridSquares.push(gridSquare);
+        row.appendChild(gridSquare);
+      });
+      eyesGrid.appendChild(row);
+    });
+
+    function toggleHighlight(freq) {
+      gridSquares.forEach(square => {
+        if (square.dataset.frequency == freq) {
+          square.style.backgroundColor = square.style.backgroundColor ? '' : colorMaps[freq];
+        }
+      });
+    }
+
+    gridSquares.forEach(square => {
+      square.addEventListener('click', () => {
+        toggleHighlight(square.dataset.frequency);
+      });
+    });
+
+    const chartContainer = document.getElementById('chartContainer');
+    chartContainer.innerHTML = '';
+    const sortedFrequency = Object.entries(frequency).sort((a, b) => b[1] - a[1]);
+    const barContainers = [];
+
+    sortedFrequency.forEach(([num, freq]) => {
+      const barContainer = document.createElement('div');
+      barContainer.classList.add('barContainer');
+
+      const bar = document.createElement('div');
+      bar.classList.add('bar');
+      bar.style.height = `${freq * 10}px`;
+      bar.style.backgroundColor = colorMaps[freq];
+      bar.dataset.frequency = freq;
+
+      const barText = document.createElement('div');
+      barText.classList.add('barText');
+      barText.textContent = freq;
+      bar.appendChild(barText);
+
+      barContainer.appendChild(bar);
+
+      const eyeLabel = document.createElement('div');
+      eyeLabel.textContent = num;
+      barContainer.appendChild(eyeLabel);
+
+      chartContainer.appendChild(barContainer);
+      barContainers.push(bar);
+    });
+
+    barContainers.forEach(bar => {
+      bar.addEventListener('click', () => {
+        toggleHighlight(bar.dataset.frequency);
+      });
+    });
+
+    const chartWrapper = document.getElementById('chartWrapper');
+    const chartContainerHeight = chartContainer.getBoundingClientRect().height;
+    chartWrapper.style.height = `${chartContainerHeight}px`;
+  }
+
+  document.querySelectorAll('.toggleButton').forEach(button => {
+    button.addEventListener('click', () => {
+      const label = button.dataset.label;
+      if (activeLabels.has(label)) {
+        activeLabels.delete(label);
+        button.classList.remove('active');
+      } else {
+        activeLabels.add(label);
+        button.classList.add('active');
+      }
+      updateVisualization();
+    });
   });
 
-  const chartContainer = document.getElementById('chartContainer');
-  const sortedFrequency = Object.entries(frequency).sort((a, b) => b[1] - a[1]);
-  sortedFrequency.forEach(([num, freq]) => {
-    const barContainer = document.createElement('div');
-    barContainer.classList.add('barContainer');
-
-    const bar = document.createElement('div');
-    bar.classList.add('bar');
-    bar.style.height = `${freq * 10}px`;
-    bar.style.backgroundColor = colorMaps[freq];
-
-    const barText = document.createElement('div');
-    barText.classList.add('barText');
-    barText.textContent = freq;
-    bar.appendChild(barText);
-
-    barContainer.appendChild(bar);
-
-    const eyeLabel = document.createElement('div');
-    eyeLabel.textContent = num;
-    barContainer.appendChild(eyeLabel);
-
-    chartContainer.appendChild(barContainer);
-  });
-
-  const chartWrapper = document.getElementById('chartWrapper');
-  const chartContainerHeight = chartContainer.getBoundingClientRect().height;
-  chartWrapper.style.height = `${chartContainerHeight}px`;
-
+  updateVisualization();
 </script>
 </body>
 </html>
