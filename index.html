@@ -5,31 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colored Cipher Visualization</title>
 <style>
-  
+  /* Define grid layout */
   #cipherGrid {
     display: grid;
-    gap: 2px; 
-    overflow-x: auto; 
-    white-space: nowrap; 
+    gap: 2px; /* Adjust gap between grid squares as needed */
+    overflow-x: auto; /* Enable horizontal scrollbar */
+    white-space: nowrap; /* Prevent grid from wrapping */
   }
 
-  
+  /* Define grid square styles */
   .gridSquare {
-    width: 20px; 
-    height: 20px; 
-    border: 1px solid black; 
+    width: 20px; /* Adjust square size as needed */
+    height: 20px; /* Adjust square size as needed */
+    border: 1px solid black; /* Adjust border style as needed */
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    font-size: 12px; 
+    font-size: 12px; /* Adjust font size as needed */
+  }
+
+  /* Define chart container styles */
+  #chartWrapper {
+    overflow-x: auto; /* Enable horizontal scrollbar */
+    white-space: nowrap; /* Prevent chart from wrapping */
+    width: 100%; /* Make chart responsive */
+    min-width: 600px; /* Set a minimum width to maintain size */
+    position: relative; /* Position relative for absolute positioning */
+  }
+
+  #chartContainer {
+    display: flex;
+    justify-content: flex-start; /* Align bars to the left */
+    align-items: flex-end; /* Align bars to the bottom */
+    padding: 10px 0; /* Add padding for better spacing */
+    position: absolute; /* Position absolute for top-left origin */
+    top: 0; /* Align to top */
+    left: 0; /* Align to left */
+  }
+
+  /* Define bar chart styles */
+  .barContainer {
+    display: flex;
+    flex-direction: column; /* Reverse column direction for top-left origin */
+    align-items: center;
+    margin-right: 5px; /* Adjust margin between bars as needed */
+    width: 20px; /* Adjust width to match grid square */
+  }
+
+  .bar {
+    width: 100%; /* Bar takes full width of container */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+  }
+
+  .barText {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
   }
 </style>
 </head>
 <body>
 <div id="cipherGrid"></div>
+<div id="chartWrapper">
+  <div id="chartContainer"></div>
+</div>
 
 <script>
-  // 
+  // JavaScript code to generate the colored cipher grid
   const ciphers = [
     [50,66,5,48,62,13,75,29,24,61,42,70,66,62,32,14,81,8,15,78,2,29,13,49,1,80,82,40,63,81,21,19,0,40,51,65,26,14,21,70,47,44,48,42,19,48,13,47,19,49,72,31,5,24,3,43,59,67,33,49,41,60,21,26,30,5,25,20,71,11,74,56,4,74,19,71,4,51,41,43,80,72,54,63,79,81,15,16,44,31,30,12,33,57,28,13,64,43,48],
     [80,66,5,48,62,13,75,29,24,61,42,70,66,62,32,14,81,8,15,78,2,29,13,49,1,29,11,30,52,81,21,19,0,25,26,54,20,14,21,70,47,44,48,42,19,48,13,47,19,49,44,26,59,77,64,43,79,28,72,64,1,30,73,23,67,6,33,25,64,81,68,46,17,36,13,17,21,68,13,9,46,67,57,34,62,82,15,10,73,62,2,11,65,72,37,44,10,43,68,62,9,34,18],
@@ -45,12 +91,12 @@
   const combinedCiphers = ciphers.flat();
   const frequency = {};
 
-  // 
+  // Calculate frequency of each number
   combinedCiphers.forEach(num => {
     frequency[num] = (frequency[num] || 0) + 1;
   });
 
-  // 
+  // Create color map using tab20 colormap from matplotlib
   const colors = [
     [31, 119, 180],
     [255, 127, 14],
@@ -81,7 +127,7 @@
     colorMaps[freq] = `rgb(${colors[i % colors.length].join()})`;
   });
 
-  // 
+  // Generate colored cipher grid
   const cipherGrid = document.getElementById('cipherGrid');
   ciphers.forEach((cipher, index) => {
     const row = document.createElement('div');
@@ -96,6 +142,38 @@
     });
     cipherGrid.appendChild(row);
   });
+
+  // Generate frequency analysis chart
+  const chartContainer = document.getElementById('chartContainer');
+  const sortedFrequency = Object.entries(frequency).sort((a, b) => b[1] - a[1]);
+  sortedFrequency.forEach(([num, freq]) => {
+    const barContainer = document.createElement('div');
+    barContainer.classList.add('barContainer');
+
+    const bar = document.createElement('div');
+    bar.classList.add('bar');
+    bar.style.height = `${freq * 10}px`; // Adjust bar height multiplier as needed
+    bar.style.backgroundColor = colorMaps[freq];
+
+    const barText = document.createElement('div');
+    barText.classList.add('barText');
+    barText.textContent = freq;
+    bar.appendChild(barText);
+
+    barContainer.appendChild(bar);
+
+    const cipherLabel = document.createElement('div');
+    cipherLabel.textContent = num;
+    barContainer.appendChild(cipherLabel);
+
+    chartContainer.appendChild(barContainer);
+  });
+
+  // Adjust chart container height dynamically
+  const chartWrapper = document.getElementById('chartWrapper');
+  const chartContainerHeight = chartContainer.getBoundingClientRect().height;
+  chartWrapper.style.height = `${chartContainerHeight}px`;
+
 </script>
 </body>
 </html>
